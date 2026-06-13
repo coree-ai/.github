@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version
+        type: string
+        default: '24'
+      checkout-version:
+        description: actions/checkout version
+        type: string
+        default: 'v6'
+      validation-script:
+        description: Path to platform-specific validation script in the calling repo
+        type: string
+        required: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: ${{ inputs.checkout-version == 'v6' && '0' || '' }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Run validation
+        run: bash ${{ inputs.validation-script }}

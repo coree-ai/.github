@@ -1,0 +1,33 @@
+name: Sync Steering Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - steering/**
+      - .github/sync.yml
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.COREE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.COREE_BOT_PRIVATE_KEY }}
+          owner: coree-ai
+
+      - name: Sync files
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ steps.app-token.outputs.token }}
+          CONFIG_PATH: .github/sync.yml
+          PR_BODY: |
+            Automated steering doc sync from coree-ai/.github.
+            Updates the canonical coree instructions to match the latest version.
+          COMMIT_PREFIX: "docs: "
+          DRY_RUN: false

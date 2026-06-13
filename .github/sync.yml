@@ -1,0 +1,24 @@
+# File sync configuration for steering docs
+# Uses repo-file-sync-action: https://github.com/BetaHuhn/repo-file-sync-action
+
+group:
+  - files:
+      - source: steering/coree.md
+        dest: CLAUDE.md
+        repos:
+          - coree-ai/claude
+          - coree-ai/zed
+      - source: steering/coree.md
+        dest: GEMINI.md
+        repos:
+          - coree-ai/gemini
+          - coree-ai/antigravity
+      - source: steering/coree.md
+        dest: AGENTS.md
+        repos:
+          - coree-ai/codex
+          - coree-ai/openclaw
+      - source: steering/coree.md
+        dest: opencode.md
+        repos:
+          - coree-ai/opencode
