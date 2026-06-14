@@ -1,0 +1,49 @@
+name: Scripts CI
+
+# Validates the shared scripts that are synced out to every plugin repo
+# (see .github/sync.yml). Testing the single source here means we do not have
+# to test 12 byte-identical copies.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - ".github/workflows/ci-scripts.yml"
+      - "biome.json"
+  pull_request:
+    paths:
+      - "scripts/**"
+      - ".github/workflows/ci-scripts.yml"
+      - "biome.json"
+
+permissions:
+  contents: read
+
+jobs:
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Cheap static guard: catches syntax / ESM-vs-CommonJS mistakes such as the
+      # `require` in a `.mjs` bug that shipped broken to all repos.
+      - name: Syntax check (node --check)
+        run: |
+          for f in scripts/*.mjs scripts/*.js; do
+            echo "node --check $f"
+            node --check "$f"
+          done
+
+      - name: Shell syntax check
+        run: bash -n scripts/pin-guard.sh
+
+      - name: Lint & format (Biome)
+        run: npx --yes @biomejs/biome@1 ci scripts
+
+      - name: Unit tests (node:test)
+        run: node --test scripts/tests/*.test.mjs scripts/tests/*.test.js

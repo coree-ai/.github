@@ -1,7 +1,11 @@
-# File sync configuration for steering docs
+# File sync configuration for steering docs and shared scripts.
 # Uses repo-file-sync-action: https://github.com/BetaHuhn/repo-file-sync-action
+#
+# Source of truth lives in this repo. Edit files here; every push syncs them out.
+# Do NOT edit the synced copies in the individual plugin repos.
 
 group:
+  # --- steering docs ---
   - files:
       - source: steering/coree.md
         dest: CLAUDE.md
@@ -22,3 +26,45 @@ group:
         dest: opencode.md
         repos:
           - coree-ai/opencode
+
+  # --- shared scripts + lint config (every plugin repo) ---
+  - files:
+      - source: scripts/renovate-post-upgrade.mjs
+        dest: scripts/renovate-post-upgrade.mjs
+      - source: scripts/pin-guard.sh
+        dest: scripts/pin-guard.sh
+      - source: biome.json
+        dest: biome.json
+    repos: &all-plugin-repos
+      - coree-ai/antigravity
+      - coree-ai/claude
+      - coree-ai/codex
+      - coree-ai/cursor
+      - coree-ai/gemini
+      - coree-ai/jetbrains
+      - coree-ai/kiro
+      - coree-ai/openclaw
+      - coree-ai/opencode
+      - coree-ai/vscode
+      - coree-ai/windsurf
+      - coree-ai/zed
+
+  # --- hook wrappers (only hosts that run a command hook) ---
+  # Both adapters share scripts/coree-hook-inject.js; each host's adapter is
+  # synced in as scripts/hook-wrapper.js (the path their hooks.json invokes).
+  - files:
+      - source: scripts/coree-hook-inject.js
+        dest: scripts/coree-hook-inject.js
+    repos:
+      - coree-ai/antigravity
+      - coree-ai/gemini
+  - files:
+      - source: scripts/hook-wrapper-antigravity.js
+        dest: scripts/hook-wrapper.js
+    repos:
+      - coree-ai/antigravity
+  - files:
+      - source: scripts/hook-wrapper-gemini.js
+        dest: scripts/hook-wrapper.js
+    repos:
+      - coree-ai/gemini
