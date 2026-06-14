@@ -5,20 +5,23 @@ group:
   - files:
       - source: steering/coree.md
         dest: CLAUDE.md
-        repos:
-          - coree-ai/claude
-          - coree-ai/zed
+    repos: |
+      coree-ai/claude
+      coree-ai/zed
+  - files:
       - source: steering/coree.md
         dest: GEMINI.md
-        repos:
-          - coree-ai/gemini
-          - coree-ai/antigravity
+    repos: |
+      coree-ai/gemini
+      coree-ai/antigravity
+  - files:
       - source: steering/coree.md
         dest: AGENTS.md
-        repos:
-          - coree-ai/codex
-          - coree-ai/openclaw
+    repos: |
+      coree-ai/codex
+      coree-ai/openclaw
+  - files:
       - source: steering/coree.md
         dest: opencode.md
-        repos:
-          - coree-ai/opencode
+    repos: |
+      coree-ai/opencode
