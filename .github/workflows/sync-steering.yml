@@ -21,10 +21,22 @@ jobs:
           private-key: ${{ secrets.COREE_BOT_PRIVATE_KEY }}
           owner: coree-ai
 
+      - name: Resolve bot identity
+        id: bot
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          uid=$(gh api "/users/${SLUG}[bot]" --jq .id)
+          echo "name=${SLUG}[bot]" >> "$GITHUB_OUTPUT"
+          echo "email=${uid}+${SLUG}[bot]@users.noreply.github.com" >> "$GITHUB_OUTPUT"
+
       - name: Sync files
         uses: BetaHuhn/repo-file-sync-action@v1
         with:
           GH_PAT: ${{ steps.app-token.outputs.token }}
+          GIT_USERNAME: ${{ steps.bot.outputs.name }}
+          GIT_EMAIL: ${{ steps.bot.outputs.email }}
           CONFIG_PATH: .github/sync.yml
           PR_BODY: |
             Automated steering doc sync from coree-ai/.github.
