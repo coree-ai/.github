@@ -1,0 +1,73 @@
+name: coree version check
+
+# Reusable guard: asserts that the @coree-ai/coree dependency pin is identical
+# everywhere it appears in the caller repo, excluding the synced steering docs
+# (CLAUDE.md / GEMINI.md / AGENTS.md / opencode.md), which are canonical content
+# owned by coree-ai/.github and must stay pin-free. This checks the coree
+# DEPENDENCY pin only - never the plugin's own package/extension version, which
+# is released independently.
+
+on:
+  workflow_call:
+    inputs:
+      steering-files:
+        description: Synced steering docs to exclude from the check (space-separated)
+        type: string
+        default: "CLAUDE.md GEMINI.md AGENTS.md opencode.md"
+
+jobs:
+  coree-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check coree pin consistency
+        shell: bash
+        env:
+          STEERING_FILES: ${{ inputs.steering-files }}
+        run: |
+          node <<'SCRIPT'
+          const { execSync } = require('node:child_process');
+          const fs = require('node:fs');
+
+          const skip = new Set([
+            ...(process.env.STEERING_FILES || '').split(/\s+/).filter(Boolean),
+            'package-lock.json',
+            'renovate.json',
+          ]);
+
+          const files = execSync('git ls-files', { encoding: 'utf8' })
+            .split('\n')
+            .filter(Boolean)
+            .filter((f) => !skip.has(f) && !f.includes('node_modules/'));
+
+          const patterns = [
+            /@coree-ai\/coree@(\d+\.\d+\.\d+)/g,
+            /COREE_VERSION\s*=\s*"(\d+\.\d+\.\d+)"/g,
+          ];
+
+          const found = [];
+          for (const f of files) {
+            let text;
+            try { text = fs.readFileSync(f, 'utf8'); } catch { continue; }
+            for (const re of patterns) {
+              re.lastIndex = 0;
+              let m;
+              while ((m = re.exec(text))) found.push({ file: f, version: m[1] });
+            }
+          }
+
+          if (found.length === 0) {
+            console.error('ERROR: no @coree-ai/coree pin found in any non-steering file.');
+            process.exit(1);
+          }
+
+          for (const x of found) console.log(`${x.version}  ${x.file}`);
+
+          const versions = [...new Set(found.map((x) => x.version))];
+          if (versions.length > 1) {
+            console.error(`\nERROR: inconsistent coree pin versions: ${versions.join(', ')}`);
+            process.exit(1);
+          }
+          console.log(`\nAll coree pins consistent: ${versions[0]}`);
+          SCRIPT
