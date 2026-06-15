@@ -37,3 +37,15 @@ group:
       coree-ai/openclaw
       coree-ai/opencode
       coree-ai/zed
+  - files:
+      - source: biome.json
+        dest: biome.json
+    repos: |
+      coree-ai/antigravity
+      coree-ai/claude
+      coree-ai/codex
+      coree-ai/coree
+      coree-ai/gemini
+      coree-ai/openclaw
+      coree-ai/opencode
+      coree-ai/zed
