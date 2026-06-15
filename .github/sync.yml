@@ -25,3 +25,15 @@ group:
         dest: opencode.md
     repos: |
       coree-ai/opencode
+  - files:
+      - source: scripts/pin-guard.sh
+        dest: scripts/pin-guard.sh
+    repos: |
+      coree-ai/antigravity
+      coree-ai/claude
+      coree-ai/codex
+      coree-ai/coree
+      coree-ai/gemini
+      coree-ai/openclaw
+      coree-ai/opencode
+      coree-ai/zed

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - steering/**
+      - scripts/**
       - .github/sync.yml
   workflow_dispatch:
 
